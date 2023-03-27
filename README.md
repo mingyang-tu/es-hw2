@@ -5,7 +5,7 @@
 ## Members
 
 - 毛楷維
-- 古振宏
+- 古振宏 b08901103
 - 涂銘洋 b07202031
 
 ## Getting Started
