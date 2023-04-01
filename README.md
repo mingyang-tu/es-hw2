@@ -47,6 +47,7 @@ HOST = "HOSTNAME"  # IP address
 ### Run `server.py`
 
 ```
+install pip3
 python server.py
 ```
 
