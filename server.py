@@ -3,7 +3,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-HOST = "Host Name"  # IP address
+HOST = "HOSTNAME"  # IP address
 PORT = port  # Port to listen on (use ports > 1023)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
