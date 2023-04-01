@@ -48,9 +48,9 @@ PORT = port  # Port to listen on (use ports > 1023)
 ### Run `server.py`
 
 ```
-install pip3
 python server.py
 ```
+Have to install pip3
 
 ### Build and run `main.cpp`
 
