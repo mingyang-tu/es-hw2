@@ -42,6 +42,7 @@ Open `server.py`, set hostname.
 
 ```
 HOST = "HOSTNAME"  # IP address
+PORT = port  # Port to listen on (use ports > 1023)
 ```
 
 ### Run `server.py`
