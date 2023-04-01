@@ -19,6 +19,15 @@
 #include "mbed-trace/mbed_trace.h"
 
 #include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_tsensor.h"
+#include "stm32l475e_iot01_hsensor.h"
+#include "stm32l475e_iot01_psensor.h"
+#include "stm32l475e_iot01_magneto.h"
+
+#include <cstdio>
+
+#define SCALE_MULTIPLIER 0.004
 
 #if MBED_CONF_APP_USE_TLS_SOCKET
 #include "root_ca_cert.h"
@@ -33,10 +42,11 @@ class SocketDemo {
     static constexpr size_t MAX_MESSAGE_RECEIVED_LENGTH = 100;
 
 #if MBED_CONF_APP_USE_TLS_SOCKET
-    static constexpr size_t REMOTE_PORT = 443; // tls port
+    static constexpr size_t REMOTE_PORT = 6539; // tls port
 #else
-    static constexpr size_t REMOTE_PORT = 6531; // standard HTTP port
+    static constexpr size_t REMOTE_PORT = 6539; // standard HTTP port
 #endif // MBED_CONF_APP_USE_TLS_SOCKET
+
 
 public:
     SocketDemo() : _net(NetworkInterface::get_default_instance())
@@ -116,46 +126,62 @@ public:
             return;
         }
 
-        int16_t pDataXYZ[3] = {0};
-        int16_t sample_num = 0;
-        float SCALE_MULTIPLIER = 0.01;
-        char acc_json[1024];
-        nsapi_size_or_error_t response = 0;
-
-        BSP_ACCELERO_Init();
-
-        while (1) {
-            ++sample_num;
-            BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-            float x = (float)(pDataXYZ[0]) * SCALE_MULTIPLIER, 
-                  y = (float)(pDataXYZ[1]) * SCALE_MULTIPLIER, 
-                  z = (float)(pDataXYZ[2]) * SCALE_MULTIPLIER;
-            int len = sprintf(
-                acc_json, 
-                "{\"x\":%.4f,\"y\":%.4f,\"z\":%.4f,\"s\":%d}", 
-                x, y, z,
-                sample_num
-            );
-            printf("%s\n", acc_json);
-            response = _socket.send(acc_json, len);
-            if (0 >= response) {
-                printf("Error seding: %d\n", response);
-                return;
-            }
-            ThisThread::sleep_for(100);
-        }
-
         /* exchange an HTTP request and response */
 
-        // if (!send_http_request()) {
-        //     return;
-        // }
+        //if (!send_http_request()) {
+            //return;
+       // }
 
-        // if (!receive_http_response()) {
-        //     return;
-        // }
+        //if (!receive_http_response()) {
+            //return;
+       // }
+        BSP_ACCELERO_Init();
+        BSP_GYRO_Init();
+        BSP_HSENSOR_Init();
+        BSP_TSENSOR_Init();
+        BSP_MAGNETO_Init();
+        BSP_PSENSOR_Init();
 
-        printf("Demo concluded successfully \r\n");
+        uint8_t sample_num = 0;
+        int response;
+
+        float pressure;
+        float humidity;
+        float temperature;
+        int16_t pAcceleroDataXYZ[3] = {0};
+        int16_t pMagnetoDataXYZ[3] = {0};
+        float pGyroDataXYZ[3] = {0};
+
+        while (true){
+            char acc_json[200];
+
+            ++sample_num;
+            pressure = BSP_PSENSOR_ReadPressure();
+            humidity =BSP_HSENSOR_ReadHumidity();
+            temperature = BSP_TSENSOR_ReadTemp();
+            BSP_ACCELERO_AccGetXYZ(pAcceleroDataXYZ);
+            BSP_GYRO_GetXYZ(pGyroDataXYZ);
+            BSP_MAGNETO_GetXYZ(pMagnetoDataXYZ);
+            
+            int len  = sprintf(
+                acc_json,
+                "{\"pre\":%f, \"hum\":%f, \"temp\":%f, \"x_a\":%d, \"y_a\":%d, \"z_a\":%d, \"x_g\":%f, \"y_g\":%f, \"z_g\":%f, \"x_m\":%d, \"y_m\":%d, \"z_m\":%d, \"s\":%d}",
+                pressure,humidity,temperature,
+                pAcceleroDataXYZ[0],pAcceleroDataXYZ[1],pAcceleroDataXYZ[2],
+                pGyroDataXYZ[0],pGyroDataXYZ[1],pGyroDataXYZ[2],
+                pMagnetoDataXYZ[0],pMagnetoDataXYZ[1],pMagnetoDataXYZ[2],
+                sample_num
+            );
+            response=_socket.send(acc_json,len);
+            printf("sent %d bytes\r\n", response);
+            if(response<0)
+                printf("Error! _socket.send() returned: %d\r\n", response);
+            HAL_Delay(1000);
+        }
+        printf("Send Sensor OK!!\r\n");
+        BSP_ACCELERO_DeInit();
+        BSP_GYRO_DeInit();
+        BSP_MAGNETO_DeInit();
     }
 
 private:
