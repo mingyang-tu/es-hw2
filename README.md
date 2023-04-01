@@ -4,7 +4,7 @@
 
 ## Members
 
-- 毛楷維
+- 毛楷維 b07901134
 - 古振宏 b08901103
 - 涂銘洋 b07202031
 
@@ -52,3 +52,6 @@ python server.py
 ```
 
 ### Build and run `main.cpp`
+
+### demo photo
+
