@@ -46,7 +46,11 @@ PORT = port  # Port to listen on (use ports > 1023)
 ```
 
 ### Run `server.py`
-Have to install pip3
+
+#### Requirements
+
+- matplotlib
+
 ```
 python server.py
 ```
