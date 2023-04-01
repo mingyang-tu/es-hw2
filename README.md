@@ -1,4 +1,4 @@
-# Embedded System HW-2
+# Embedded System HW-2 MbedOS
 
 > Modified from [mbed-os-example-sockets](https://github.com/ARMmbed/mbed-os-example-sockets)
 
